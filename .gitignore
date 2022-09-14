@@ -131,3 +131,6 @@ dmypy.json
 # Big files
 .csv
 DataCollection/csv
+
+# My python env
+DataCollection/YouTube/.env.json

@@ -34,6 +34,8 @@ logging.info(f"{MAX_RESULTS} results per page and {N_PAGES} pages per term")
 
 logging.info(f"Approx {N_PAGES * len(video_keywords) * 100 * 2 * len(credentials)} API points will be used")
 
+#THIS CODE NEEDS REFACTORING SOMETHING FIERCE
+
 for credential in credentials: 
     # so right now its just gonna do the exact same search three times on different creds which isn't useful
     # either i need to build in exception handling and when the quota is met re authenticate with different credentials
@@ -68,8 +70,8 @@ for credential in credentials:
                 if next_page_token is not None: # if a next page token comes in, use it
                     searchParams['pageToken'] = next_page_token
 
-                response = yt.search(youtube, **searchParams)
-
+                    response = yt.search(youtube, **searchParams)
+                    
                 if "nextPageToken" in response: # if there is a next page token, set it for next loop
                     next_page_token = response["nextPageToken"]
                 
@@ -144,3 +146,4 @@ logging.info(f"Found {len(keyword_hits)} total keyword hits out of {len(cached_v
 with open(f'csv/sponsored_yt_vids_{run_timestamp}.csv', 'w') as csvfile:
     for key in keyword_hits.keys():
         csvfile.write(f"{key}, {keyword_hits[key]['vKey']}, {keyword_hits[key]['dKey']}, {keyword_hits[key]['desc']}, {keyword_hits[key]['emails']}, {keyword_hits[key]['title']}, {keyword_hits[key]['channelTitle']}\n")
+        

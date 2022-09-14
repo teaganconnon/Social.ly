@@ -8,6 +8,8 @@ import os
 import pickle
 import string
 
+from urllib.error import HTTPError
+
 # api code comes from https://www.thepythoncode.com/article/using-youtube-api-in-python
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]
@@ -63,10 +65,20 @@ def get_video_snippet(youtube, **kwargs):
 
 def search(youtube, **kwargs):
     # search by query for videos / channels/ playlists
-    return youtube.search().list(
+    request = youtube.search().list(
         part="id,snippet",
         **kwargs
-    ).execute()
+        )
+    try:
+        request.execute()
+    except HTTPError as e:
+        # this is where the credential switch needs to happen / a signal needs to be passed up to whatever called this
+        if e.reason == 'quotaExceeded':
+            print(e)
+            return e
+        else:
+            print(e)
+
 
 def get_channel_videos(youtube, **kwargs):
     # search by channel id for associated videos
