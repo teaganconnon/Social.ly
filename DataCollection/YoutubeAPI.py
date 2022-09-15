@@ -14,7 +14,7 @@ from urllib.error import HTTPError
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]
 
-credentials = ["credentials.json", "credentials2.json", "credentials3.json"] #filenames of the OAuth credentials to bypass 10,000 point limit
+#credentials = ["credentials.json", "credentials2.json", "credentials3.json"] #filenames of the OAuth credentials to bypass 10,000 point limit
 
 punct_table = str.maketrans('', '', string.punctuation)
 
@@ -70,7 +70,7 @@ def search(youtube, **kwargs):
         **kwargs
         )
     try:
-        request.execute()
+        return request.execute()
     except HTTPError as e:
         # this is where the credential switch needs to happen / a signal needs to be passed up to whatever called this
         if e.reason == 'quotaExceeded':
@@ -203,7 +203,7 @@ def get_video_description(video_response):
     items = video_response.get("items")[0]
     snippet = items["snippet"]
 
-    return snippet["description"].lower().translate(punct_table)
+    return snippet["description"].lower().strip("\n").strip(",")
 
 def get_video_description_raw(video_response):
     return video_response.get("items")[0]["snippet"]["description"]
@@ -211,6 +211,11 @@ def get_video_description_raw(video_response):
 def parse_description_for_email(description):
     #takes in description string and returns email strings of the form name@domain.tld
     return re.findall(r'[\w.+-]+@[\w-]+\.[\w.-]+', description)
+
+def get_video_snippet(video_response):
+    # gets stats from video response
+    items = video_response.get("items")[0]
+    return items["snippet"]
 
 def get_video_statistics(video_response):
     # gets stats from video response
