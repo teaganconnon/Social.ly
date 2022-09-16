@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Find a Sponsor {% endblock %}</h1>
+    <form method="post">
+        <label for="search_terms">Search Terms</label>
+        <br>
+        <input type="text" name="search_terms"
+               placeholder="college vlog, Minecraft, e.g."
+               value="{{ request.form['search_terms'] }}"></input>
+        <br>
+        <label for="keywords">Keywords</label>
+        <br>
+        <input type="text" name="keywords"
+                placeholder="sponsor, use code, etc."
+                value="{{ request.form['keywords'] }}"></input>
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+{% endblock %}

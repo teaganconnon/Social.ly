@@ -15,30 +15,34 @@ class Video:
 
     def to_dict(self, **kwargs):
         #convert video response to dictionary
-        content = {}
+        snippet = {}
+        content_details = {}
         statistics = {}
 
-        snippet = {
-            "publish_time": self.snippet.get("publishedAt"),
-            "channel_id": self.snippet.get("channelId"),
-            "title": self.snippet.get("title"),
-            "description": self.snippet.get("description"),
-            # "thumbnail_url": self.snippet.get(
-            #     "thumbnails", {}).get("high").get("url"),
-            # "thumbnail_width": self.snippet.get(
-            #     "thumbnails", {}).get("high").get("width"),
-            # "thumbnail_height": self.snippet.get(
-            #     "thumbnails", {}).get("high").get("height"),
-            "channel_name": self.snippet.get("channelTitle"),
-            "tags": self.snippet.get("tags"),
-            "category_id": self.snippet.get("categoryId"),
-            "live_status": self.snippet.get(
-                "liveBroadcastContent"),
-            # "local_title": self.snippet.get(
-            #     "localized", {}).get("title"),
-            # "local_description": self.snippet.get(
-            #     "localized", {}).get("description"),
-        }
+        video_id = {"video_id": self.id}
+        
+        if self.snippet:
+            snippet = {
+                "publish_time": self.snippet.get("publishedAt"),
+                "channel_id": self.snippet.get("channelId"),
+                "title": self.snippet.get("title"),
+                "description": self.snippet.get("description"),
+                # "thumbnail_url": self.snippet.get(
+                #     "thumbnails", {}).get("high").get("url"),
+                # "thumbnail_width": self.snippet.get(
+                #     "thumbnails", {}).get("high").get("width"),
+                # "thumbnail_height": self.snippet.get(
+                #     "thumbnails", {}).get("high").get("height"),
+                "channel_name": self.snippet.get("channelTitle"),
+                "tags": self.snippet.get("tags"),
+                "category_id": self.snippet.get("categoryId"),
+                "live_status": self.snippet.get(
+                    "liveBroadcastContent"),
+                # "local_title": self.snippet.get(
+                #     "localized", {}).get("title"),
+                # "local_description": self.snippet.get(
+                #     "localized", {}).get("description"),
+            }
         if self.content_details:
             content_details = {
                 "duration": self.content_details.get("duration"),
@@ -60,6 +64,5 @@ class Video:
                 "favorite": self.statistics.get("favoriteCount"),
                 "comment": self.statistics.get("commentCount")
             }
-        video_id = {"video_id": self.id}
 
         return dict(**video_id, **snippet, **content_details, **statistics, **kwargs)

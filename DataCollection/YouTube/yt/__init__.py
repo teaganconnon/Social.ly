@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List
 
 import requests
-from requests.exceptions import RequestException   
+from requests.exceptions import RequestException, HTTPError   
 
 from video.video import Video
 from channel.channel import Channel
@@ -41,7 +41,7 @@ class YouTube:
         params = {
             'key': self.api_keys[self.credential],
             'type': search_type,
-            'part': 'snippet',
+            'part': 'id',
             'q': search_term,
             'maxResults': max_results,
         }
@@ -56,13 +56,13 @@ class YouTube:
             for attempt in range(3): #try 3 times because i like that number
                 try:
                     response = self._get(endpoint='https://www.googleapis.com/youtube/v3/search', params=params)
-                except RequestException as e:
-                    if e.response.reason_code == 'quotaExceeded':
+                except HTTPError as e:
+                    if e.response.reason == 'quotaExceeded': #this isn't the right way to handle the error
                         self.credential += 1
                         if self.credential == 3: #magic number of api keys I have, i don't know if this is actually gonna work like i think it will
                             raise Exception("Out of API Keys!")
                         params['key'] = self.api_keys[self.credential]
-                        #raise e #dont raise this because i want it to keep trying i think
+                    raise e #dont raise this because i want it to keep trying i think
                 else:
                     videos.extend(response.get('items'))
                     cursor = response.get('nextPageToken')

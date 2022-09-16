@@ -4,6 +4,7 @@ import re
 from datetime import datetime
 from time import time
 from pathlib import Path
+from typing import List
 
 import pandas as pd
 
@@ -14,14 +15,14 @@ from yt.logger import setup_logging
 _LOGGER = logging.getLogger(__name__)
 
 #these consts are probably gonna be what the user gets to choose, although maybe just search terms and num-pages at end of day
-SEARCH_TERMS = ['turtleneck']
+SEARCH_TERMS = ['college', 'college vlog']
 KEYWORD_TERMS = ["sponsor", "use code", "sign up", "click the link", "use the link", "use my link", "click on the link", "brought to you by"]
 FALSE_KEYWORDS = ["not sponsor", "not a sponsor", "no sponsor", "notsponsor", "isn't sponsored", "isnt sponsored"]
 
-NUM_PAGES = 1
+NUM_PAGES = 3
 MAX_RESULTS = 50
 
-def sponsor_search(search_terms, keyword_terms, false_keywords, num_pages: int = 3, max_results: int = 50, save_csv: bool = False):
+def sponsor_search(search_terms, keyword_terms: List = KEYWORD_TERMS, false_keywords: List = FALSE_KEYWORDS, num_pages: int = 3, max_results: int = 50, save_csv: bool = False):
     """
         Searches youtube using list of search terms
         Looks through video results descriptions for keyword term matches
@@ -68,7 +69,7 @@ def sponsor_search(search_terms, keyword_terms, false_keywords, num_pages: int =
 
     youtube = YouTube(
         api_keys=config.API_KEYS,
-        credential=0
+        credential=1
     )
 
     search_results = []
@@ -76,13 +77,17 @@ def sponsor_search(search_terms, keyword_terms, false_keywords, num_pages: int =
     search_start = time()
 
     for search_term in search_terms:
-        search_results.extend(youtube.search(search_term, num_pages)) # this doesn't return a full description so need to query api again, kind of a waste of the other stuff in the snippet smh
-
-    #optimal api point usage would entail dropping duplicates here
-    search_results = [*set(search_results)] # or i could extract all unique ids from search results but allegedly *set is fast
+        search_results.extend(youtube.search(search_term, num_pages))
 
     search_results = [
-        youtube.get_video_from_id(video.get_id())
+        video.get_id()
+        for video in search_results
+    ]
+
+    search_results = [*set(search_results)]
+
+    search_results = [
+        youtube.get_video_from_id(video)
         for video in search_results
     ]
 
@@ -98,7 +103,7 @@ def sponsor_search(search_terms, keyword_terms, false_keywords, num_pages: int =
     _LOGGER.info(f"Retrieved {df_videos.shape[0]} total videos")
 
     # drop nonunique video ids
-    df_videos.drop_duplicates(subset=['video_id'])
+    df_videos = df_videos.drop_duplicates(subset=['video_id'])
     # iterate through descriptions looking for substring matches from keyword search and add to new data frame
     keyword_string = "|".join(keyword_terms)
     sponsored_videos = df_videos.loc[df_videos['description'].str.contains(keyword_string, case=False)].copy()
@@ -106,8 +111,9 @@ def sponsor_search(search_terms, keyword_terms, false_keywords, num_pages: int =
     sponsored_videos['keyword_hits'] = sponsored_videos['description'].str.findall(keyword_string, flags=re.IGNORECASE)
     # iterate through hits to look for false positives and drop those
     false_keyword_string = "|".join(false_keywords)
-    sponsored_videos_cleaned = sponsored_videos.loc[~sponsored_videos['description'].str.contains(false_keyword_string)]
+    sponsored_videos_cleaned = sponsored_videos.loc[~sponsored_videos['description'].str.contains(false_keyword_string)].drop('description', axis=1)
     # return dataframe
+    # could probably not include the description in the response since it kind of makes the dataframe hard to read
 
     if save_csv:
         filename = Path(config.DATADIR) / f"sponsored_videos_{dataset_version}.csv"

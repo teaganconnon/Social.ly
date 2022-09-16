@@ -129,8 +129,13 @@ dmypy.json
 .pyre/
 
 # Big files
-.csv
+*.csv
 DataCollection/csv
+DataCollection/YouTube/data
 
 # My python env
 DataCollection/YouTube/.env.json
+
+# tutorial files
+DataCollection/YouTube/flaskr_tut
+DataCollection/YouTube/instance
