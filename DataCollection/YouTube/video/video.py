@@ -7,8 +7,8 @@ class Video:
     #Video response instance
     id: str
     snippet: Dict[str, str]
-    content_detail: Dict[str, Any]
-    statistic: Dict[str, int]
+    content_details: Dict[str, Any]
+    statistics: Dict[str, int]
 
     def get_id(self):
         return self.id
@@ -16,7 +16,7 @@ class Video:
     def to_dict(self, **kwargs):
         #convert video response to dictionary
         content = {}
-        statistic = {}
+        statistics = {}
 
         snippet = {
             "publish_time": self.snippet.get("publishedAt"),
@@ -39,27 +39,27 @@ class Video:
             # "local_description": self.snippet.get(
             #     "localized", {}).get("description"),
         }
-        if self.content_detail:
-            content = {
-                "duration": self.content_detail.get("duration"),
-                "dimension": self.content_detail.get("dimension"),
-                "definition": self.content_detail.get(
+        if self.content_details:
+            content_details = {
+                "duration": self.content_details.get("duration"),
+                "dimension": self.content_details.get("dimension"),
+                "definition": self.content_details.get(
                     "definition"),
-                "caption": self.content_detail.get("caption"),
-                "license_status": self.content_detail.get(
+                "caption": self.content_details.get("caption"),
+                "license_status": self.content_details.get(
                     "licensedContent"),
-                "allowed_region": self.content_detail.get(
+                "allowed_region": self.content_details.get(
                     "regionRestriction", {}).get("allowed"),
-                "blocked_region": self.content_detail.get(
+                "blocked_region": self.content_details.get(
                     "regionRestriction", {}).get("blocked"),
             }
-        if self.statistic:
-            statistic = {
-                "view": self.statistic.get("viewCount"),
-                "like": self.statistic.get("likeCount"),
-                "favorite": self.statistic.get("favoriteCount"),
-                "comment": self.statistic.get("commentCount")
+        if self.statistics:
+            statistics = {
+                "views": self.statistics.get("viewCount"),
+                "likes": self.statistics.get("likeCount"),
+                "favorite": self.statistics.get("favoriteCount"),
+                "comment": self.statistics.get("commentCount")
             }
         video_id = {"video_id": self.id}
 
-        return dict(**video_id, **snippet, **content, **statistic, **kwargs)
+        return dict(**video_id, **snippet, **content_details, **statistics, **kwargs)

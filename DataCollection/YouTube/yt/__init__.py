@@ -30,6 +30,7 @@ class YouTube:
         else:
             return res.json()
 
+    #this is only gonna work with videos so don't use the search_type parameter
     def search(self, 
         search_term, 
         num_pages: int = 1,
@@ -52,26 +53,29 @@ class YouTube:
         for i in range(num_pages):
             if cursor:
                 params['pageToken'] = cursor
-
-            try:
-                response = self._get(endpoint='https://www.googleapis.com/youtube/v3/search', params=params)
-            except RequestException as e:
-                if e.response.reason_code == 'quotaExceeded':
-                    self.credential += 1
-                    if self.credential == 3: #magic number of api keys I have
-                        raise Exception("Out of API Keys!")
-                    params['key'] = self.api_keys[self.credential]
-                    raise e
+            for attempt in range(3): #try 3 times because i like that number
+                try:
+                    response = self._get(endpoint='https://www.googleapis.com/youtube/v3/search', params=params)
+                except RequestException as e:
+                    if e.response.reason_code == 'quotaExceeded':
+                        self.credential += 1
+                        if self.credential == 3: #magic number of api keys I have, i don't know if this is actually gonna work like i think it will
+                            raise Exception("Out of API Keys!")
+                        params['key'] = self.api_keys[self.credential]
+                        #raise e #dont raise this because i want it to keep trying i think
+                else:
+                    videos.extend(response.get('items'))
+                    cursor = response.get('nextPageToken')
+                    break
             else:
-                videos.extend(response.get('items'))
-                cursor = response.get('nextPageToken')
+                raise Exception(f"Search for {search_term} failed")
 
         videos = [
             Video(
                 id=video.get("id").get('videoId'),
                 snippet=video.get("snippet"),
-                content_detail=video.get("contentDetails"),
-                statistic=video.get("statistics"),
+                content_details=video.get("contentDetails"),
+                statistics=video.get("statistics"),
             )
             for video in videos
         ]
@@ -85,6 +89,7 @@ class YouTube:
             'id': video_id,
         }
 
+        #need to build in the attempt code here too although this one is less likely to fail
         try:
             response = self._get(endpoint='https://www.googleapis.com/youtube/v3/videos', params=params)
         except RequestException as e:
@@ -99,14 +104,14 @@ class YouTube:
             return Video(
                 id=video.get("id"),
                 snippet=video.get("snippet"),
-                content_detail=video.get("contentDetails"),
-                statistic=video.get("statistics"),
+                content_details=video.get("contentDetails"),
+                statistics=video.get("statistics"),
             )
 
     def get_channel_details(self, 
         channel_title: str = '',
-        channel_id: str = ''):
-
+        channel_id: str = '')->Channel:
+        #this method will return details about a channel returning a channel object
         #stub method
 
         return

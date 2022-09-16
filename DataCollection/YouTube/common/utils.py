@@ -4,7 +4,7 @@ import os
 import pandas as pd
 
 
-def save_to_csv(data: pd.DataFrame, filename: str = "trending.csv"):
+def save_to_csv(data: pd.DataFrame, filename: str = "results.csv"):
     """Save data as csv in the given datadir.
     Create the directory (and intermediate dirs) if it
     doesn't exist yet. If the file has been created,
@@ -12,7 +12,7 @@ def save_to_csv(data: pd.DataFrame, filename: str = "trending.csv"):
     Args:
         data (pd.DataFrame): data to be saved.
         filename (str): directory and the name of the file.
-            Default is to save as `trending.csv` in current dir.
+            Default is to save as `results.csv` in current dir.
     Return:
         None
     """

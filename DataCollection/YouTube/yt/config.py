@@ -5,4 +5,3 @@ with open('.env.json') as env:
     LOG_LEVEL = env_dict['LOG_LEVEL']
     API_KEYS = env_dict['API_KEYS']
     DATADIR = env_dict['DATADIR']
-    URL = env_dict['URL']
